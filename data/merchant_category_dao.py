@@ -11,7 +11,6 @@ class MerchantCategoryDao:
         self.table.put_item(Item={
             "name": name,
             "category": category,
-            "website": website,
             "recurring": is_recurring
         })
 

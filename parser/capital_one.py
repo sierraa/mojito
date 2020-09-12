@@ -20,6 +20,9 @@ class CapitalOneParser:
         date_range = self.df.loc[start_date:end_date]
         return self.sum_total_category_for_dataframe(category, date_range)
 
+    def get_categories(self):
+        return self.df['Category'].unique()
+
     @staticmethod
     def sum_total_category_for_dataframe(category, dataframe):
         # TODO: this is a naive approach, would like to get more granular
