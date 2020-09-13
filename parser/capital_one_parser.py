@@ -1,6 +1,7 @@
 import pandas as pd
 import math
 
+
 class CapitalOneParser:
 
     def __init__(self, fname):
@@ -8,6 +9,9 @@ class CapitalOneParser:
 
     def sum_total_spending(self):
         return self.sum_total_spending_for_dataframe(self.df)
+
+    def sum_total_spending_per_cardholder(self, last_four):
+        return self.sum_total_spending_for_dataframe(self.df[self.df["Card No."] == last_four])
 
     def sum_total_spending_for_dates(self, start_date, end_date):
         date_range = self.df.loc[start_date:end_date]
@@ -20,8 +24,14 @@ class CapitalOneParser:
         date_range = self.df.loc[start_date:end_date]
         return self.sum_total_category_for_dataframe(category, date_range)
 
+    def sum_total_category_per_cardholder(self, category, last_four):
+        return self.sum_total_category_for_dataframe(category, self.df[self.df["Card No."] == last_four])
+
     def get_categories(self):
         return self.df['Category'].unique()
+
+    def get_cardholders(self):
+        return self.df['Card No.'].unique()
 
     @staticmethod
     def sum_total_category_for_dataframe(category, dataframe):
