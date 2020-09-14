@@ -22,6 +22,7 @@ def capitalone(filename, cardholders):
 
 # TODO: add methods for analyzing per year/month/week
 # TODO add a class for categorizing stuff (filterer? categorizer?)
+# TODO: Add output options (even just csv for now would be nice)
 def analyze_capital_one(fname):
     capital_one = CapitalOneAnalyzer(fname)
     spending_per_category = capital_one.get_spending_per_category()

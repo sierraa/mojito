@@ -33,6 +33,10 @@ class CapitalOneParser:
     def get_cardholders(self):
         return self.df['Card No.'].unique()
 
+    def get_merchants(self):
+        # TODO: clean this data before returning
+        return self.df['Description'].unique()
+
     @staticmethod
     def sum_total_category_for_dataframe(category, dataframe):
         # TODO: this is a naive approach, would like to get more granular
