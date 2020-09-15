@@ -6,15 +6,22 @@ import click
 
 
 @click.group()
-def cli():
+def cli(): # TODO: need to add options
     pass
 
 
 @cli.command()
 @click.argument('filename')
-@click.option('--cardholders/--no-cardholders', default=False)
-def capitalone(filename, cardholders):
-    if cardholders:
+@click.option('--cardholders', is_flag=True)
+@click.option('-r', '--retailer')
+@click.option('--all_retailers', is_flag=True)
+@click.option('-a', '--average', is_flag=True)
+def capitalone(filename, cardholders, retailer, all_retailers, average):
+    if all_retailers:
+        analyze_capital_one_per_retailer(filename) # TODO: add average here
+    elif retailer:
+        analyze_capital_one_for_retailer(filename, retailer, average)
+    elif cardholders:
         analyze_capital_one_per_cardholder(filename)
     else:
         analyze_capital_one(filename)
@@ -41,6 +48,28 @@ def analyze_capital_one_per_cardholder(fname):
         for category in spending_per_category_per_cardholder[cardholder].keys():
             click.echo(format_spending_with_percent(spending_per_category_per_cardholder[cardholder][category], category,
                                                percent_per_category_per_cardholder[cardholder][category], name=cardholder))
+
+
+def analyze_capital_one_for_retailer(fname, retailer, average):
+    capital_one = CapitalOneAnalyzer(fname)
+    total_spent = capital_one.get_total_spending()
+    print("You spent {:.2f} total".format(total_spent))
+    retailer_total = capital_one.get_total_spending_for_retailer(retailer)
+    percent = retailer_total / total_spent
+    print(format_spending_with_percent(retailer_total, retailer, percent))
+    if average:
+        average, count = capital_one.get_average_and_count_for_retailer(retailer)
+        print("You spent {:.2f} on average over a total of {} transactions".format(average, count))
+
+
+def analyze_capital_one_per_retailer(fname):
+    # TODO: should have a category argument here
+    capital_one = CapitalOneAnalyzer(fname)
+    total_spent = capital_one.get_total_spending()
+    total_per_retailer = capital_one.get_total_spending_per_retailer()
+    for retailer in total_per_retailer.keys():
+        percent = retailer / total_spent
+        print(format_spending_with_percent(total_per_retailer[retailer], retailer, percent))
 
 
 def format_spending_with_percent(amount, category, raw_percentage, name="You"):

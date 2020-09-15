@@ -1,3 +1,4 @@
+from parser.merchant_parser import MerchantParser
 from parser.capital_one_parser import CapitalOneParser
 
 
@@ -5,6 +6,7 @@ class CapitalOneAnalyzer:
 
     def __init__(self, fname):
         self.parser = CapitalOneParser(fname)
+        self.merchant_parser = MerchantParser(self.parser.df)
         self.categories = self.parser.get_categories()
         self.cardholders = self.parser.get_cardholders()
         self.spending_per_category = None
@@ -45,6 +47,26 @@ class CapitalOneAnalyzer:
             for cardholder in self.cardholders:
                 self.total_spent_per_cardholder[cardholder] = self.parser.sum_total_spending_per_cardholder(cardholder)
         return self.total_spent_per_cardholder
+
+    def get_total_spending_for_retailer(self, retailer):
+        # TODO: also keep this in a cache when there is an interactive mode
+        return self.merchant_parser.sum_for_retailer(retailer)
+
+    def get_total_spending_per_retailer(self):
+        # Returns sorted dictionary
+        retailers = self.merchant_parser.get_retailers()
+        results = dict()
+        for retailer in retailers:
+            results[retailer] = self.merchant_parser.sum_for_retailer(retailer)
+        return {k:v for k, v in sorted(results.items(), key=lambda item: item[1])}
+
+    def get_average_and_count_for_retailer(self, retailer):
+        total = self.get_total_spending_for_retailer(retailer)
+        count = self.merchant_parser.count_for_retailer(retailer)
+        if count > 0:
+            return total / count, count
+        else:
+            return 0, 0
 
     def __analyze_per_category(self):
         # Return a dictionary of spending per category

@@ -34,8 +34,10 @@ class CapitalOneParser:
         return self.df['Card No.'].unique()
 
     def get_merchants(self):
-        # TODO: clean this data before returning
         return self.df['Description'].unique()
+
+    def get_dataframe(self):
+        return self.df
 
     @staticmethod
     def sum_total_category_for_dataframe(category, dataframe):
