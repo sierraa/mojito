@@ -36,7 +36,7 @@ class MerchantDescriptionMatcher:
                     similarity = self.get_similarity(s, k)
                     if similarity > max_similarity:
                         max_similarity = similarity
-                if max_similarity > self.confidence_threshold:
+                if max_similarity < self.confidence_threshold:
                     result_set.add(s)
         return result_set
 

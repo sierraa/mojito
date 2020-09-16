@@ -17,7 +17,8 @@ class MerchantStringCleaner:
 
     def __remove_merchant_junk(self, s):
         # Don't care if square was used, pollutes our description
-        junk_strings = ["SQUARE      *SQ", "SQU*SQ", "SQ *SQ", "TST*", "SQUARE *SQ *"]
+        # TODO: probably a regex would be better here due to all this weird whitespace
+        junk_strings = ["SQ          *SQ *", "SQUARE      *SQ", "SQUARE *SQ *", "SQU*SQ *", "SQU*SQ", "SQ *SQ", "TST*", "SQ *"]
         for junk in junk_strings:
             if junk in s:
                 s = s.replace(junk, "")

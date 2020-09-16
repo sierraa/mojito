@@ -4,9 +4,9 @@ from parser.capital_one_parser import CapitalOneParser
 
 class CapitalOneAnalyzer:
 
-    def __init__(self, fname):
+    def __init__(self, fname, category=None, month=None):
         self.parser = CapitalOneParser(fname)
-        self.merchant_parser = MerchantParser(self.parser.df)
+        self.merchant_parser = MerchantParser(self.parser.get_dataframe(), category=category)
         self.categories = self.parser.get_categories()
         self.cardholders = self.parser.get_cardholders()
         self.spending_per_category = None
@@ -58,7 +58,7 @@ class CapitalOneAnalyzer:
         results = dict()
         for retailer in retailers:
             results[retailer] = self.merchant_parser.sum_for_retailer(retailer)
-        return {k:v for k, v in sorted(results.items(), key=lambda item: item[1])}
+        return {k:v for k, v in sorted(results.items(), key=lambda item: item[1], reverse=True)}
 
     def get_average_and_count_for_retailer(self, retailer):
         total = self.get_total_spending_for_retailer(retailer)
