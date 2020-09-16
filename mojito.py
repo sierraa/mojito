@@ -2,6 +2,7 @@
 from main.capital_one_analyzer import CapitalOneAnalyzer
 # from dotenv import load_dotenv
 import click
+import datetime
 
 
 # TODO: Add data by month
@@ -12,8 +13,11 @@ def cli():
 
 @cli.command()
 @click.argument('filename')
-def overview(filename):
-    analyze_capital_one(filename)
+@click.option('-s', '--start')
+@click.option('-f', '--finish')
+def overview(filename, start, finish):
+    start_date, finish_date = validate_dates(start, finish)
+    analyze_capital_one(filename, start_date, finish_date)
 
 
 @cli.command()
@@ -40,8 +44,8 @@ def retailers(filename, category, number_of_retailers):
 # TODO: add methods for analyzing per year/month/week
 # TODO add a class for categorizing stuff (filterer? categorizer?)
 # TODO: Add output options (even just csv for now would be nice)
-def analyze_capital_one(fname):
-    capital_one = CapitalOneAnalyzer(fname)
+def analyze_capital_one(fname, start_date, end_date):
+    capital_one = CapitalOneAnalyzer(fname, start_date=start_date, end_date=end_date)
     spending_per_category = capital_one.get_spending_per_category()
     percentage_per_category = capital_one.get_percentage_per_category()
     click.secho("💸 You spent ${:.2f} total 💸".format(capital_one.get_total_spending()), bold=True, fg="green")
@@ -74,7 +78,7 @@ def analyze_capital_one_for_retailer(fname, retailer, verbose):
 
 def analyze_capital_one_per_retailer(fname, category, number_of_retailers):
     # TODO: limit by dollar amount?
-    print("Please hold, this could take a few minutes...")
+    click.secho("Please hold, this could take a few minutes...", fg="white", bg="black")
     capital_one = CapitalOneAnalyzer(fname, category=category)
     total_spent = capital_one.get_total_spending()
     total_per_retailer = capital_one.get_total_spending_per_retailer()
@@ -85,6 +89,7 @@ def analyze_capital_one_per_retailer(fname, category, number_of_retailers):
         print(format_spending_with_percent(total_per_retailer[retailer], retailer, percent))
 
 
+# TODO: probably move this utilities into their own classes
 def format_spending_with_percent(amount, category, raw_percentage, name="You"):
     category_to_emoji = {
         "Lodging": "🧳",
@@ -100,6 +105,24 @@ def format_spending_with_percent(amount, category, raw_percentage, name="You"):
     percent = raw_percentage * 100
     category_with_emoji = category + " " + category_to_emoji.get(category, "")
     return "{} spent ${:.2f} in {} ({:.2f}% of total)".format(name, amount, category_with_emoji, percent)
+
+
+def validate_dates(start, finish):
+    start_date = validate_date(start)
+    finish_date = validate_date(finish)
+    return start_date, finish_date
+
+
+def validate_date(dt):
+    if dt is None:
+        return None
+    date_format = '%Y-%m-%d'
+    try:
+        datetime.datetime.strptime(dt, date_format)
+        return dt
+    except ValueError:
+        click.secho("Invalid date provided: {}. Ignoring.".format(dt), fg="red", bold=True)
+        return None
 
 
 if __name__ == "__main__":

@@ -4,8 +4,8 @@ from parser.capital_one_parser import CapitalOneParser
 
 class CapitalOneAnalyzer:
 
-    def __init__(self, fname, category=None, month=None):
-        self.parser = CapitalOneParser(fname)
+    def __init__(self, fname, category=None, start_date=None, end_date=None):
+        self.parser = CapitalOneParser(fname, start_date, end_date)
         self.merchant_parser = MerchantParser(self.parser.get_dataframe(), category=category)
         self.categories = self.parser.get_categories()
         self.cardholders = self.parser.get_cardholders()

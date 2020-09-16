@@ -4,8 +4,18 @@ import math
 
 class CapitalOneParser:
 
-    def __init__(self, fname):
+    def __init__(self, fname, start_date, end_date):
         self.df = pd.read_csv(fname)
+        self.transaction_date = 'Transaction Date'
+        if start_date or end_date:
+            # Don't need to bother with the conversion otherwise
+            self.df[self.transaction_date] = pd.to_datetime(self.df[self.transaction_date])
+        if start_date and end_date:
+            self.df = self.df[(self.df[self.transaction_date] > pd.Timestamp(start_date)) & (self.df[self.transaction_date] < pd.Timestamp(end_date))]
+        elif start_date:
+            self.df = self.df[(self.df[self.transaction_date] > pd.Timestamp(start_date))]
+        elif end_date:
+            self.df = self.df[(self.df[self.transaction_date] < pd.Timestamp(end_date))]
 
     def sum_total_spending(self):
         return self.sum_total_spending_for_dataframe(self.df)
