@@ -4,8 +4,7 @@ from main.capital_one_analyzer import CapitalOneAnalyzer
 import click
 
 
-# TODO: colorize me :-) and add emojis
-# - Add data by month
+# TODO: Add data by month
 # - Compare year to year
 @click.group()
 def cli():
@@ -25,16 +24,16 @@ def cardholders(filename):
 @cli.command()
 @click.argument('filename')
 @click.argument('retailer')
-@click.option('-a', '--average', is_flag=True) # TODO: consider making this a verbose flag
-def retailer(filename, retailer, average):
-    analyze_capital_one_for_retailer(filename, retailer, average)
+@click.option('-v', '--verbose', is_flag=True)
+def retailer(filename, retailer, verbose):
+    analyze_capital_one_for_retailer(filename, retailer, verbose)
 
 @cli.command()
 @click.argument('filename')
 @click.option('-c', '--category')
 @click.option('-n', '--number_of_retailers', default=100)
 def retailers(filename, category, number_of_retailers):
-    # TODO: add average parameters here
+    # TODO: add verbose parameters here
     analyze_capital_one_per_retailer(filename, category, number_of_retailers)
 
 
@@ -45,9 +44,9 @@ def analyze_capital_one(fname):
     capital_one = CapitalOneAnalyzer(fname)
     spending_per_category = capital_one.get_spending_per_category()
     percentage_per_category = capital_one.get_percentage_per_category()
-    print("You spent {:.2f} total".format(capital_one.get_total_spending()))
+    click.secho("💸 You spent ${:.2f} total 💸".format(capital_one.get_total_spending()), bold=True, fg="green")
     for category in spending_per_category.keys():
-        click.echo(format_spending_with_percent(spending_per_category[category], category, percentage_per_category[category]))
+        click.secho(format_spending_with_percent(spending_per_category[category], category, percentage_per_category[category]))
 
 
 def analyze_capital_one_per_cardholder(fname):
@@ -55,22 +54,22 @@ def analyze_capital_one_per_cardholder(fname):
     spending_per_category_per_cardholder = capital_one.get_spending_per_category_per_cardholder()
     percent_per_category_per_cardholder = capital_one.get_percent_per_category_per_cardholder()
     for cardholder in spending_per_category_per_cardholder.keys():
-        print("Analyzing for cardholder {}".format(cardholder))
+        click.secho("💸 Analyzing for cardholder {} 💸".format(cardholder), bold=True, fg="green")
         for category in spending_per_category_per_cardholder[cardholder].keys():
-            click.echo(format_spending_with_percent(spending_per_category_per_cardholder[cardholder][category], category,
+            click.secho(format_spending_with_percent(spending_per_category_per_cardholder[cardholder][category], category,
                                                percent_per_category_per_cardholder[cardholder][category], name=cardholder))
 
 
-def analyze_capital_one_for_retailer(fname, retailer, average):
+def analyze_capital_one_for_retailer(fname, retailer, verbose):
     capital_one = CapitalOneAnalyzer(fname)
     total_spent = capital_one.get_total_spending()
-    print("You spent {:.2f} total".format(total_spent))
+    click.secho("💸 You spent ${:.2f} total 💸".format(total_spent), bold=True, fg="green")
     retailer_total = capital_one.get_total_spending_for_retailer(retailer)
     percent = retailer_total / total_spent
     print(format_spending_with_percent(retailer_total, retailer, percent))
-    if average:
+    if verbose:
         average, count = capital_one.get_average_and_count_for_retailer(retailer)
-        print("You spent {:.2f} on average over a total of {} transactions".format(average, count))
+        click.secho("You spent ${:.2f} on average over a total of {} transactions".format(average, count))
 
 
 def analyze_capital_one_per_retailer(fname, category, number_of_retailers):
@@ -87,8 +86,20 @@ def analyze_capital_one_per_retailer(fname, category, number_of_retailers):
 
 
 def format_spending_with_percent(amount, category, raw_percentage, name="You"):
+    category_to_emoji = {
+        "Lodging": "🧳",
+        "Airfare": "✈️",
+        "Other Travel": "🗺️",
+        "Dining": "🍴",
+        "Merchandise": "🛍️️",
+        "Gas/Automotive": "⛽",
+        "Phone/Cable": "☎️",
+        "Health Care": "💊",
+        "Entertainment": "🎤"
+    }
     percent = raw_percentage * 100
-    return "{} spent {:.2f} in {} ({:.2f}% of total)".format(name, amount, category, percent)
+    category_with_emoji = category + " " + category_to_emoji.get(category, "")
+    return "{} spent ${:.2f} in {} ({:.2f}% of total)".format(name, amount, category_with_emoji, percent)
 
 
 if __name__ == "__main__":

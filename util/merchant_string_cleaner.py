@@ -1,12 +1,17 @@
+import re
+
 class MerchantStringCleaner:
+    # TODO: take in a csv and output one with cleaned merchants once all the bugs have been worked out here
 
     def clean_merchant(self, s):
-        clean_str = self.__remove_merchant_junk(s)
+        clean_str = self.remove_merchant_junk(s)
         if self.__is_amazon_string(clean_str):
             clean_str = self.__split_amazon_string(clean_str)
         # Remove common special chars, numbers, whitespace, and make lowercase
         clean_str = self.__remove_bad_chars(clean_str)
-        return clean_str.lower().strip()
+        clean_str = clean_str.lower().strip()
+        clean_str = self.remove_generic_words(clean_str)
+        return clean_str
 
     def clean_data(self, merchants):
         clean_data = set()
@@ -15,13 +20,22 @@ class MerchantStringCleaner:
             clean_data.add(cleaned_string)
         return list(clean_data)
 
-    def __remove_merchant_junk(self, s):
+    @staticmethod
+    def remove_merchant_junk(s):
         # Don't care if square was used, pollutes our description
-        # TODO: probably a regex would be better here due to all this weird whitespace
-        junk_strings = ["SQ          *SQ *", "SQUARE      *SQ", "SQUARE *SQ *", "SQU*SQ *", "SQU*SQ", "SQ *SQ", "TST*", "SQ *"]
+        square_regex = r"((SQUARE)|(SQU)|(SQ))\s*\*{1}(SQ)?\s*\*?\s*"
+        junk_strings = ["TST*"]
+        s = re.sub(square_regex, '', s)
         for junk in junk_strings:
             if junk in s:
                 s = s.replace(junk, "")
+        return s
+
+    def remove_generic_words(self, s):
+        generic_words = ["restaurant", "tavern", "brewing", "lounge"]
+        for generic in generic_words:
+            if generic in s:
+                s = s.replace(generic, "")
         return s
 
     def __split_amazon_string(self, s):
@@ -33,6 +47,8 @@ class MerchantStringCleaner:
             if amz in s:
                 return True
         return False
+
+    # TODO add some special processing for airbnb as well
 
     def __remove_bad_chars(self, s):
         bad_chars = [str(i) for i in range(10)] + ["*", "#", "-"]

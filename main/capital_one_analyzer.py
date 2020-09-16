@@ -54,6 +54,7 @@ class CapitalOneAnalyzer:
 
     def get_total_spending_per_retailer(self):
         # Returns sorted dictionary
+        # Takes forever TODO: add a progress bar with click
         retailers = self.merchant_parser.get_retailers()
         results = dict()
         for retailer in retailers:
