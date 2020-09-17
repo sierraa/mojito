@@ -5,46 +5,54 @@ import click
 import datetime
 
 
-# TODO: Add data by month
-# - Compare year to year
+# TODO: Compare year to year
 @click.group()
-def cli():
-    pass
-
-@cli.command()
 @click.argument('filename')
 @click.option('-s', '--start')
-@click.option('-f', '--finish')
-def overview(filename, start, finish):
-    start_date, finish_date = validate_dates(start, finish)
-    analyze_capital_one(filename, start_date, finish_date)
-
-
-@cli.command()
-@click.argument('filename')
-def cardholders(filename):
-    analyze_capital_one_per_cardholder(filename)
-
-@cli.command()
-@click.argument('filename')
-@click.argument('retailer')
+@click.option('-f', '--finish') # TODO: add help here
 @click.option('-v', '--verbose', is_flag=True)
-def retailer(filename, retailer, verbose):
-    analyze_capital_one_for_retailer(filename, retailer, verbose)
+def cli(ctx, filename, start, finish, verbose):
+    ctx.ensure_object(dict)
+    start_date, finish_date = validate_dates(start, finish)
+    ctx.obj['FILENAME'] = filename
+    ctx.obj['START'] = start_date
+    ctx.obj['FINISH'] = finish_date
+    ctx.obj['VERBOSE'] = verbose
+
 
 @cli.command()
-@click.argument('filename')
+@click.pass_context
+def overview(ctx):
+    analyze_capital_one(ctx.obj['FILENAME'], ctx.obj['START'], ctx.obj['FINISH'], ctx.obj['VERBOSE'])
+
+
+@cli.command()
+@click.pass_context
+def cardholders(ctx):
+    analyze_capital_one_per_cardholder(ctx.obj['FILENAME'], ctx.obj['START'], ctx.obj['FINISH'], ctx.obj['VERBOSE'])
+
+
+@cli.command()
+@click.pass_context
+@click.argument('retailer')
+def retailer(ctx, retailer):
+    analyze_capital_one_for_retailer(ctx.obj['FILENAME'], retailer, ctx.obj['START'],
+                                     ctx.obj['FINISH'], ctx.obj['VERBOSE'])
+
+
+@cli.command()
+@click.pass_context
 @click.option('-c', '--category')
 @click.option('-n', '--number_of_retailers', default=100)
-def retailers(filename, category, number_of_retailers):
-    # TODO: add verbose parameters here
-    analyze_capital_one_per_retailer(filename, category, number_of_retailers)
+def retailers(ctx, category, number_of_retailers):
+    analyze_capital_one_per_retailer(ctx.obj['FILENAME'], ctx.obj['START'], ctx.obj['FINISH'],
+                                     category, ctx.obj['VERBOSE'], number_of_retailers)
 
 
 # TODO: add methods for analyzing per year/month/week
 # TODO add a class for categorizing stuff (filterer? categorizer?)
 # TODO: Add output options (even just csv for now would be nice)
-def analyze_capital_one(fname, start_date, end_date):
+def analyze_capital_one(fname, start_date, end_date, verbose):
     capital_one = CapitalOneAnalyzer(fname, start_date=start_date, end_date=end_date)
     spending_per_category = capital_one.get_spending_per_category()
     percentage_per_category = capital_one.get_percentage_per_category()
@@ -53,8 +61,8 @@ def analyze_capital_one(fname, start_date, end_date):
         click.secho(format_spending_with_percent(spending_per_category[category], category, percentage_per_category[category]))
 
 
-def analyze_capital_one_per_cardholder(fname):
-    capital_one = CapitalOneAnalyzer(fname)
+def analyze_capital_one_per_cardholder(fname, start, finish, verbose):
+    capital_one = CapitalOneAnalyzer(fname, start_date=start, end_date=finish)
     spending_per_category_per_cardholder = capital_one.get_spending_per_category_per_cardholder()
     percent_per_category_per_cardholder = capital_one.get_percent_per_category_per_cardholder()
     for cardholder in spending_per_category_per_cardholder.keys():
@@ -64,8 +72,8 @@ def analyze_capital_one_per_cardholder(fname):
                                                percent_per_category_per_cardholder[cardholder][category], name=cardholder))
 
 
-def analyze_capital_one_for_retailer(fname, retailer, verbose):
-    capital_one = CapitalOneAnalyzer(fname)
+def analyze_capital_one_for_retailer(fname, retailer, start, finish, verbose):
+    capital_one = CapitalOneAnalyzer(fname, start_date=start, end_date=finish)
     total_spent = capital_one.get_total_spending()
     click.secho("💸 You spent ${:.2f} total 💸".format(total_spent), bold=True, fg="green")
     retailer_total = capital_one.get_total_spending_for_retailer(retailer)
@@ -76,14 +84,14 @@ def analyze_capital_one_for_retailer(fname, retailer, verbose):
         click.secho("You spent ${:.2f} on average over a total of {} transactions".format(average, count))
 
 
-def analyze_capital_one_per_retailer(fname, category, number_of_retailers):
+def analyze_capital_one_per_retailer(fname, start, finish, category, verbose, number_of_retailers):
     # TODO: limit by dollar amount?
     click.secho("Please hold, this could take a few minutes...", fg="white", bg="black")
-    capital_one = CapitalOneAnalyzer(fname, category=category)
+    capital_one = CapitalOneAnalyzer(fname, category=category, start_date=start, end_date=finish)
     total_spent = capital_one.get_total_spending()
     total_per_retailer = capital_one.get_total_spending_per_retailer()
     retailers = list(total_per_retailer.keys())
-    for i in range(number_of_retailers):
+    for i in range(min(len(retailers), number_of_retailers)):
         retailer = retailers[i]
         percent = total_per_retailer[retailer] / total_spent
         print(format_spending_with_percent(total_per_retailer[retailer], retailer, percent))
@@ -127,4 +135,4 @@ def validate_date(dt):
 
 if __name__ == "__main__":
     # load_dotenv()
-    cli()
+    cli(obj={})
