@@ -6,10 +6,17 @@ import datetime
 
 
 # TODO: Compare year to year
+# - Allow users to change categories (review things in the "other categories")
+# - Allow users to set goals and track those goals
+# - Make predictions based on previous years
+from main.capital_one_cleaner import CapitalOneCleaner
+
+
 @click.group()
-@click.argument('filename')
-@click.option('-s', '--start')
-@click.option('-f', '--finish') # TODO: add help here
+@click.argument('filename') # TODO: how to have the command appear before the file name
+@click.pass_context
+@click.option('-s', '--start', help="Start date of the format YYYY-MM-DD")
+@click.option('-f', '--finish', help="Finish date of the format YYYY-MM-DD")
 @click.option('-v', '--verbose', is_flag=True)
 def cli(ctx, filename, start, finish, verbose):
     ctx.ensure_object(dict)
@@ -23,12 +30,24 @@ def cli(ctx, filename, start, finish, verbose):
 @cli.command()
 @click.pass_context
 def overview(ctx):
+    """Get an overview of spending per category"""
     analyze_capital_one(ctx.obj['FILENAME'], ctx.obj['START'], ctx.obj['FINISH'], ctx.obj['VERBOSE'])
 
 
 @cli.command()
 @click.pass_context
+@click.argument('output')
+# TODO: debug option in here
+def clean(ctx, output):
+    #TODO clean up merchant categories as well
+    """Clean up descriptions in the csv and write it to a file"""
+    clean_capital_one(ctx.obj['FILENAME'], output)
+
+
+@cli.command()
+@click.pass_context
 def cardholders(ctx):
+    """Breakdown spending per category by cardholders"""
     analyze_capital_one_per_cardholder(ctx.obj['FILENAME'], ctx.obj['START'], ctx.obj['FINISH'], ctx.obj['VERBOSE'])
 
 
@@ -36,15 +55,17 @@ def cardholders(ctx):
 @click.pass_context
 @click.argument('retailer')
 def retailer(ctx, retailer):
+    """Breakdown spending for a specific retailer"""
     analyze_capital_one_for_retailer(ctx.obj['FILENAME'], retailer, ctx.obj['START'],
                                      ctx.obj['FINISH'], ctx.obj['VERBOSE'])
 
 
 @cli.command()
 @click.pass_context
-@click.option('-c', '--category')
+@click.option('-c', '--category', help="Purchase category to filter on")
 @click.option('-n', '--number_of_retailers', default=100)
 def retailers(ctx, category, number_of_retailers):
+    """Show overall spending for all retailers"""
     analyze_capital_one_per_retailer(ctx.obj['FILENAME'], ctx.obj['START'], ctx.obj['FINISH'],
                                      category, ctx.obj['VERBOSE'], number_of_retailers)
 
@@ -95,6 +116,11 @@ def analyze_capital_one_per_retailer(fname, start, finish, category, verbose, nu
         retailer = retailers[i]
         percent = total_per_retailer[retailer] / total_spent
         print(format_spending_with_percent(total_per_retailer[retailer], retailer, percent))
+
+
+def clean_capital_one(input, output):
+    capital_one_cleaner = CapitalOneCleaner(input)
+    capital_one_cleaner.clean(output)
 
 
 # TODO: probably move this utilities into their own classes

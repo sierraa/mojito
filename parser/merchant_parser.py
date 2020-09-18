@@ -41,3 +41,6 @@ class MerchantParser:
                 if not math.isnan(debit): # A credit will have the debit column set as NaN
                     count += 1
         return count
+
+    def clean(self):
+        pass
