@@ -49,6 +49,12 @@ class CapitalOneParser:
     def get_dataframe(self):
         return self.df
 
+    def get_min_date(self):
+        return self.df['Transaction Date'].min()
+
+    def get_max_date(self):
+        return self.df['Transaction Date'].max()
+
     @staticmethod
     def sum_total_category_for_dataframe(category, dataframe):
         # TODO: this is a naive approach, would like to get more granular

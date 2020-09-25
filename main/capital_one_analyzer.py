@@ -1,5 +1,6 @@
 from parser.merchant_parser import MerchantParser
 from parser.capital_one_parser import CapitalOneParser
+from util.transaction_date_util import TransactionDateUtil
 
 
 class CapitalOneAnalyzer:
@@ -9,6 +10,11 @@ class CapitalOneAnalyzer:
         self.merchant_parser = MerchantParser(self.parser.get_dataframe(), category=category)
         self.categories = self.parser.get_categories()
         self.cardholders = self.parser.get_cardholders()
+        self.min_date = self.parser.get_min_date()
+        self.max_date = self.parser.get_max_date()
+        self.num_months = max(TransactionDateUtil.get_num_months_between_dates(self.min_date, self.max_date), 1)
+        self.num_weeks = max(TransactionDateUtil.get_num_weeks_between_dates(self.min_date, self.max_date), 1)
+        self.num_days = max(TransactionDateUtil.get_num_days_between_dates(self.min_date, self.max_date), 1)
         self.spending_per_category = None
         self.spending_per_category_per_cardholder = None
         self.percent_per_category_per_cardholder = None
@@ -52,13 +58,16 @@ class CapitalOneAnalyzer:
         # TODO: also keep this in a cache when there is an interactive mode
         return self.merchant_parser.sum_for_retailer(retailer)
 
-    def get_total_spending_per_retailer(self):
+    def get_total_spending_per_retailer(self, order_by):
         # Returns sorted dictionary
         # Takes forever TODO: add a progress bar with click
         retailers = self.merchant_parser.get_retailers()
         results = dict()
         for retailer in retailers:
             results[retailer] = self.merchant_parser.sum_for_retailer(retailer)
+        if order_by == "number_of_transactions":
+            return {k:v for k, v in sorted(results.items(),
+                                           key=lambda item: self.merchant_parser.count_for_retailer(item[0]), reverse=True)}
         return {k:v for k, v in sorted(results.items(), key=lambda item: item[1], reverse=True)}
 
     def get_average_and_count_for_retailer(self, retailer):
@@ -68,6 +77,43 @@ class CapitalOneAnalyzer:
             return total / count, count
         else:
             return 0, 0
+
+    def get_average_monthly_spending(self):
+        return self.get_total_spending() / self.num_months
+
+    def get_average_monthly_spending_for_category(self, category):
+        # TODO: need validation around categories
+        return self.get_spending_per_category()[category] / self.num_months
+
+    def get_average_monthly_spending_for_retailer(self, retailer):
+        return self.get_total_spending_for_retailer(retailer) / self.num_months
+
+    def get_average_monthly_spending_for_cardholder(self, cardholder):
+        return self.get_total_spending_per_cardholder()[cardholder] / self.num_months
+
+    def get_average_weekly_spending(self):
+        return self.get_total_spending() / self.num_weeks
+
+    def get_average_weekly_spending_for_category(self, category):
+        return self.get_spending_per_category()[category] / self.num_weeks
+
+    def get_average_weekly_spending_for_retailer(self, retailer):
+        return self.get_total_spending_for_retailer(retailer) / self.num_weeks
+
+    def get_average_weekly_spending_for_cardholder(self, cardholder):
+        return self.get_total_spending_per_cardholder()[cardholder] / self.num_weeks
+
+    def get_average_daily_spending(self):
+        return self.get_total_spending() / self.num_days
+
+    def get_average_daily_spending_for_category(self, category):
+        return self.get_spending_per_category()[category] / self.num_days
+
+    def get_average_daily_spending_for_retailer(self, retailer):
+        return self.get_total_spending_for_retailer(retailer) / self.num_days
+
+    def get_average_daily_spending_for_cardholder(self, cardholder):
+        return self.get_total_spending_per_cardholder()[cardholder] / self.num_days
 
     def __analyze_per_category(self):
         # Return a dictionary of spending per category
