@@ -24,6 +24,11 @@ class MerchantStringCleanerTest(unittest.TestCase):
         garden_bar = string_cleaner.remove_merchant_junk("TST* GARDEN BAR")
         self.assertEqual(garden_bar, " GARDEN BAR")
 
+    def test_com_strings(self):
+        string_cleaner = MerchantStringCleaner()
+        target = string_cleaner.remove_merchant_junk("TARGET.COM")
+        self.assertEqual(target, "TARGET")
+
     def test_is_amazon_string(self):
         string_cleaner = MerchantStringCleaner()
         amazon_strings = ["AMZN Mktp US*KX5GE4S83", "AMAZON.COM*2I0LK9TD3", "Amazon.com*539HF0JE3",
