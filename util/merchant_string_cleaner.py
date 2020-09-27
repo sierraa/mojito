@@ -2,6 +2,7 @@ import re
 
 class MerchantStringCleaner:
     # TODO: take in a csv and output one with cleaned merchants once all the bugs have been worked out here
+    # TODO: filter out .COM
 
     def clean_merchant(self, s):
         clean_str = self.remove_merchant_junk(s)
