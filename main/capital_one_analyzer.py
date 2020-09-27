@@ -91,6 +91,9 @@ class CapitalOneAnalyzer:
     def get_average_monthly_spending_for_cardholder(self, cardholder):
         return self.get_total_spending_per_cardholder()[cardholder] / self.num_months
 
+    def get_average_monthly_spending_for_cardholder_for_category(self, cardholder, category):
+        return self.get_spending_per_category_per_cardholder()[cardholder][category] / self.num_months
+
     def get_average_weekly_spending(self):
         return self.get_total_spending() / self.num_weeks
 
@@ -103,6 +106,9 @@ class CapitalOneAnalyzer:
     def get_average_weekly_spending_for_cardholder(self, cardholder):
         return self.get_total_spending_per_cardholder()[cardholder] / self.num_weeks
 
+    def get_average_weekly_spending_for_cardholder_for_category(self, cardholder, category):
+        return self.get_spending_per_category_per_cardholder()[cardholder][category] / self.num_weeks
+
     def get_average_daily_spending(self):
         return self.get_total_spending() / self.num_days
 
@@ -114,6 +120,9 @@ class CapitalOneAnalyzer:
 
     def get_average_daily_spending_for_cardholder(self, cardholder):
         return self.get_total_spending_per_cardholder()[cardholder] / self.num_days
+
+    def get_average_daily_spending_for_cardholder_for_category(self, cardholder, category):
+        return self.get_spending_per_category_per_cardholder()[cardholder][category] / self.num_days
 
     def __analyze_per_category(self):
         # Return a dictionary of spending per category

@@ -102,6 +102,10 @@ def analyze_capital_one_per_cardholder(fname, start, finish, verbose):
             # TODO: verbose for cardholder for category
             click.secho(format_spending_with_percent(spending_per_category_per_cardholder[cardholder][category], category,
                                                percent_per_category_per_cardholder[cardholder][category], name=cardholder))
+            if verbose:
+                echo_time_averages(capital_one.get_average_monthly_spending_for_cardholder_for_category(cardholder, category),
+                                   capital_one.get_average_weekly_spending_for_cardholder_for_category(cardholder, category),
+                                   capital_one.get_average_weekly_spending_for_cardholder_for_category(cardholder, category))
 
 
 def analyze_capital_one_for_retailer(fname, retailer, start, finish, verbose):
@@ -120,7 +124,6 @@ def analyze_capital_one_for_retailer(fname, retailer, start, finish, verbose):
 
 
 def analyze_capital_one_per_retailer(fname, start, finish, category, verbose, number_of_retailers, order_by):
-    # TODO order by number of transactions OR by dollar amount spent
     # TODO: limit by dollar amount?
     click.secho("Please hold, this could take a few minutes...", fg="white", bg="black")
     capital_one = CapitalOneAnalyzer(fname, category=category, start_date=start, end_date=finish)

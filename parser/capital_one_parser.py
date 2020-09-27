@@ -7,9 +7,7 @@ class CapitalOneParser:
     def __init__(self, fname, start_date, end_date):
         self.df = pd.read_csv(fname)
         self.transaction_date = 'Transaction Date'
-        if start_date or end_date:
-            # Don't need to bother with the conversion otherwise
-            self.df[self.transaction_date] = pd.to_datetime(self.df[self.transaction_date])
+        self.df[self.transaction_date] = pd.to_datetime(self.df[self.transaction_date])
         if start_date and end_date:
             self.df = self.df[(self.df[self.transaction_date] > pd.Timestamp(start_date)) & (self.df[self.transaction_date] < pd.Timestamp(end_date))]
         elif start_date:
@@ -50,10 +48,10 @@ class CapitalOneParser:
         return self.df
 
     def get_min_date(self):
-        return self.df['Transaction Date'].min()
+        return self.df[self.transaction_date].min()
 
     def get_max_date(self):
-        return self.df['Transaction Date'].max()
+        return self.df[self.transaction_date].max()
 
     @staticmethod
     def sum_total_category_for_dataframe(category, dataframe):
@@ -62,6 +60,7 @@ class CapitalOneParser:
         total = 0
         for _, row in dataframe.iterrows():
             if row['Category'] == category:
+                # TODO: add in credits
                 debit = float(row['Debit'])
                 if not math.isnan(debit): # A credit will have the debit column set as NaN
                     total += debit
