@@ -56,6 +56,7 @@ class CapitalOneParser:
     @staticmethod
     def sum_total_category_for_dataframe(category, dataframe):
         # TODO: this is a naive approach, would like to get more granular
+        # TODO: HORRIBLE ANTI-PATTERN PLEASE FIX
         # And use pandas more effectively
         total = 0
         for _, row in dataframe.iterrows():
@@ -68,6 +69,7 @@ class CapitalOneParser:
 
     @staticmethod
     def sum_total_spending_for_dataframe(dataframe):
+        # TODO: HORRIBLE ANTI-PATTERN PLEASE FIX
         total = 0
         for _, row in dataframe.iterrows():
             debit = float(row['Debit'])
