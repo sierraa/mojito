@@ -17,12 +17,13 @@ class MemoStringCleanerTest(unittest.TestCase):
     def test_parse_description(self):
         sc = MemoStringCleaner()
         parsed = sc.parse_description("Withdrawal POS #111122223333 POS MAMA'S DELI TACOMA WA % Card 00 #0000")
-        self.assertEqual(parsed, " MAMA'S DELI TACOMA WA ")
+        self.assertEqual(parsed, "MAMA'S DELI")
 
     def test_parse_description_with_date(self):
         sc = MemoStringCleaner()
         parsed = sc.parse_description("Withdrawal Credit/Debit Card Signature Debit WARRIOR COFFEE ATLANTA GA Date 01/01/99 2 0000000000 1 1111 % Card 00 #0000")
-        self.assertEqual(parsed, " WARRIOR COFFEE ATLANTA GA ")
+        self.assertEqual(parsed, "WARRIOR COFFEE")
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -4,16 +4,17 @@ import re
 
 class MemoStringCleaner:
     # Methods for trailhead parsing
+    CARD = "% Card"
 
     def __init__(self):
         # read from json cities.json
-        self.card = "% Card"
         with open('../data/cities.json', 'r') as f:
             self.cities_to_states = json.load(f)
         self.state_abbr_regex = r" (A[KLZR]|C[AOT]|DE|FL|GA|HI|I[DLNA]|K[YS]|M[ETDAISO]|N[JTVEYCM]|O[RHK]|PA|RI|S[CD]|T[XN]|UT|V[AT]|W[AVIY]) "
 
-    def parse_card_no_from_memo(self, s):
-        if self.card not in s:
+    @staticmethod
+    def parse_card_no_from_memo(s):
+        if MemoStringCleaner.CARD not in s:
             return ""
         return s.split("%")[1].split("#")[1]
 
@@ -28,8 +29,9 @@ class MemoStringCleaner:
         address_regex = r"[0-9]{3,6} (SE|SW|NE|NW|N|S|E|W)? [a-zA-Z0-9]+ (RD|AVE?|BLV|ST|CT)?"
         s = re.sub(address_regex, '', s)
         s = re.split(r"Date [0-9]{2}\/[0-9]{2}\/[0-9]{2}", s)[0]
-        if self.card in s:
-            s = s.split(self.card)[0]
+        if self.CARD in s:
+            s = s.split(self.CARD)[0]
+        s = self.parse_out_city_state(s)
         return s
 
     def parse_out_city_state(self, s):
