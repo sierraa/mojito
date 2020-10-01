@@ -23,7 +23,7 @@ class MerchantDescriptionMatcher:
         match, confidence = process.extractOne(word, lst)
         if confidence < self.confidence_threshold:
             # TODO: replace this with a debug log
-            raise ValueError("No matches found for word {]".format(word))
+            raise ValueError("No matches found for word {}".format(word))
         return match
 
     def __cluster_labels(self, series):

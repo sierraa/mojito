@@ -55,24 +55,13 @@ class CapitalOneParser:
 
     @staticmethod
     def sum_total_category_for_dataframe(category, dataframe):
-        # TODO: this is a naive approach, would like to get more granular
-        # TODO: HORRIBLE ANTI-PATTERN PLEASE FIX
-        # And use pandas more effectively
-        total = 0
-        for _, row in dataframe.iterrows():
-            if row['Category'] == category:
-                # TODO: add in credits
-                debit = float(row['Debit'])
-                if not math.isnan(debit): # A credit will have the debit column set as NaN
-                    total += debit
-        return total
+        category_df = dataframe.query("Category == '{}'".format(category))
+        return CapitalOneParser.sum_total_spending_for_dataframe(category_df)
 
     @staticmethod
     def sum_total_spending_for_dataframe(dataframe):
-        # TODO: HORRIBLE ANTI-PATTERN PLEASE FIX
-        total = 0
-        for _, row in dataframe.iterrows():
-            debit = float(row['Debit'])
-            if not math.isnan(debit):
-                total += debit
-        return total
+        remove_nans = lambda x: 0 if math.isnan(x) else x
+        total_debits = dataframe["Debit"].apply(remove_nans).sum()
+        # TODO: adding in credits is buggy with payment categories
+        total_credits = 0 # dataframe["Credit"].apply(remove_nans).sum()
+        return total_debits - total_credits

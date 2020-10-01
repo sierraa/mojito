@@ -8,7 +8,7 @@ class MemoStringCleaner:
 
     def __init__(self):
         # read from json cities.json
-        with open('../data/cities.json', 'r') as f:
+        with open('data/cities.json', 'r') as f:
             self.cities_to_states = json.load(f)
         self.state_abbr_regex = r" (A[KLZR]|C[AOT]|DE|FL|GA|HI|I[DLNA]|K[YS]|M[ETDAISO]|N[JTVEYCM]|O[RHK]|PA|RI|S[CD]|T[XN]|UT|V[AT]|W[AVIY]) "
 

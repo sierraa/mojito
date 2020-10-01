@@ -5,7 +5,7 @@ from util.memo_string_cleaner import MemoStringCleaner
 
 class TrailheadParser:
 
-    def __init__(self, fname, start_date, end_date):
+    def __init__(self, fname):
         self.df = pd.read_csv(fname)
         self.string_cleaner = MemoStringCleaner()
 
@@ -41,8 +41,7 @@ class TrailheadParser:
         # Drop unnecessary columns
         self.df = self.df.drop(columns=["TRNTYPE", "TRANAMT", "FITID", "NAME", "DTPOSTED", "MEMO"])
         self.df = self.df.reindex(columns=["Transaction Date", "Posted Date", "Card No.", "Description", "Category", "Debit", "Credit"])
-        # TODO drop numbered index on output 
-        self.df.to_csv(outfile)
+        self.df.to_csv(outfile, index=False)
 
     def categorize_descriptions(self):
         raise NotImplementedError

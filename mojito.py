@@ -2,12 +2,15 @@
 from main.capital_one_analyzer import CapitalOneAnalyzer
 # from dotenv import load_dotenv
 import click
+
+from parser.trailhead_parser import TrailheadParser
 from util.transaction_date_util import TransactionDateUtil
 
 # TODO: Compare year to year
 # - Allow users to change categories (review things in the "other categories")
 # - Allow users to set goals and track those goals
 # - Make predictions based on previous years
+# - Add merge option for merging two csvs
 from main.capital_one_cleaner import CapitalOneCleaner
 
 
@@ -71,6 +74,17 @@ def retailers(ctx, category, number_of_retailers, order_by):
                                      category, ctx.obj['VERBOSE'], number_of_retailers, order_by)
 
 
+@cli.command()
+@click.pass_context
+@click.argument('output')
+@click.option('--bank', type=click.Choice(['trailhead']), default='trailhead') # TODO: add more banks
+# @click.option('--categorize', help="Use machine learning to categorize vendors", is_flag=True, default=False)
+def standardize(ctx, output, bank):
+    """Standardize csv output from different banks"""
+    if bank == "trailhead":
+        standardize_trailhead(ctx.obj['FILENAME'], output)
+
+
 # TODO add a class for categorizing stuff (filterer? categorizer?)
 # TODO: Add output options (even just csv for now would be nice)
 def analyze_capital_one(fname, start_date, end_date, verbose):
@@ -99,7 +113,6 @@ def analyze_capital_one_per_cardholder(fname, start, finish, verbose):
                                capital_one.get_average_weekly_spending_for_cardholder(cardholder),
                                capital_one.get_average_daily_spending_for_cardholder(cardholder))
         for category in spending_per_category_per_cardholder[cardholder].keys():
-            # TODO: verbose for cardholder for category
             click.secho(format_spending_with_percent(spending_per_category_per_cardholder[cardholder][category], category,
                                                percent_per_category_per_cardholder[cardholder][category], name=cardholder))
             if verbose:
@@ -145,13 +158,17 @@ def clean_capital_one(input, output):
     capital_one_cleaner.clean(output)
 
 
+def standardize_trailhead(input, output):
+    trailhead_parser = TrailheadParser(input)
+    trailhead_parser.standardize(output)
+
+
 def echo_time_averages(monthly, weekly, daily):
     click.secho("Your monthly average was ${:.2f}".format(monthly))
     click.secho("Your weekly average was ${:.2f}".format(weekly))
     click.secho("Your daily average was ${:.2f}\n\n".format(daily))
 
 
-# TODO: probably move this utilities into their own classes
 def format_spending_with_percent(amount, category, raw_percentage, name="You"):
     category_to_emoji = {
         "Lodging": "🧳",

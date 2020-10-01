@@ -16,8 +16,9 @@ class CapitalOneCleaner:
 
     def clean(self, outfile):
         retailers = self.merchant_parser.get_retailers()
+        # TODO garbage anti pattern FIX ME
         for i, row in self.df.iterrows():
             desc = self.merchant_cleaner.clean_merchant(row['Description'])
             updated_desc = self.merchant_matcher.find_closest_match(desc, retailers)
             self.df.iat[i, self.description_column_index] = updated_desc
-        self.df.to_csv(outfile)
+        self.df.to_csv(outfile, index=False)
