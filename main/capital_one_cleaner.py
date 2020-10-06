@@ -7,7 +7,7 @@ from util.merchant_string_cleaner import MerchantStringCleaner
 class CapitalOneCleaner:
 
     def __init__(self, fname, start_date=None, end_date=None):
-        self.parser = CapitalOneParser(fname, start_date, end_date)
+        self.parser = CapitalOneParser(fname, start_date=start_date, end_date=end_date)
         self.df = self.parser.get_dataframe()
         self.merchant_parser = MerchantParser(self.df)
         self.merchant_cleaner = MerchantStringCleaner()

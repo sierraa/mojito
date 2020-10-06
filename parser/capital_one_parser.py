@@ -4,7 +4,7 @@ import math
 
 class CapitalOneParser:
 
-    def __init__(self, fname, start_date, end_date):
+    def __init__(self, fname, start_date=None, end_date=None):
         self.df = pd.read_csv(fname)
         self.transaction_date = 'Transaction Date'
         self.df[self.transaction_date] = pd.to_datetime(self.df[self.transaction_date])
@@ -52,6 +52,15 @@ class CapitalOneParser:
 
     def get_max_date(self):
         return self.df[self.transaction_date].max()
+
+    def add_data(self, dataframe):
+        self.df.append(dataframe, ignore_index=True)
+
+    def write(self, outfile):
+        self.df.to_csv(outfile, index=False)
+
+    def get_unique_transactions_for_category(self, category):
+        return self.df.query('Category == "{}"'.format(category))['Description'].unique()
 
     @staticmethod
     def sum_total_category_for_dataframe(category, dataframe):

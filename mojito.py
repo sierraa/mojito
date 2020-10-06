@@ -2,7 +2,9 @@
 from main.capital_one_analyzer import CapitalOneAnalyzer
 # from dotenv import load_dotenv
 import click
+from whaaaaat import prompt, print_json
 
+from parser.capital_one_parser import CapitalOneParser
 from parser.trailhead_parser import TrailheadParser
 from util.transaction_date_util import TransactionDateUtil
 
@@ -10,7 +12,7 @@ from util.transaction_date_util import TransactionDateUtil
 # - Allow users to change categories (review things in the "other categories")
 # - Allow users to set goals and track those goals
 # - Make predictions based on previous years
-# - Add merge option for merging two csvs
+# - TODO: need requirements dot text
 from main.capital_one_cleaner import CapitalOneCleaner
 
 
@@ -83,6 +85,24 @@ def standardize(ctx, output, bank):
     """Standardize csv output from different banks"""
     if bank == "trailhead":
         standardize_trailhead(ctx.obj['FILENAME'], output)
+
+
+@cli.command()
+@click.pass_context
+@click.argument('csv', nargs=-1) # Unlimited number of arguments
+@click.argument('output')
+def merge(ctx, csv, output):
+    """Merge multiple CSVs into a single source of truth. Must already be in the Capital One format."""
+    merge_data(ctx.obj['FILENAME'], csv, output)
+
+
+@cli.command()
+@click.pass_context
+@click.argument('category')
+def categorize(ctx, category):
+    """Categorize entries in an existing category."""
+    # Get all for a certain category
+    recategorize(ctx.obj['FILENAME'], ctx.obj['START'], ctx.obj['FINISH'], category)
 
 
 # TODO add a class for categorizing stuff (filterer? categorizer?)
@@ -161,6 +181,21 @@ def clean_capital_one(input, output):
 def standardize_trailhead(input, output):
     trailhead_parser = TrailheadParser(input)
     trailhead_parser.standardize(output)
+
+
+def merge_data(initial_fname, csvs, output):
+    initial_data = CapitalOneParser(initial_fname)
+    for fname in csvs:
+        new_data = CapitalOneParser(fname)
+        initial_data.add_data(new_data.get_dataframe())
+    initial_data.write(output)
+
+
+def recategorize(fname, start, finish, category):
+    # For now just echo everything in a category
+    parser = CapitalOneParser(fname, start_date=start, end_date=finish)
+    uncategorized = parser.get_unique_transactions_for_category(category)
+    print(uncategorized)
 
 
 def echo_time_averages(monthly, weekly, daily):

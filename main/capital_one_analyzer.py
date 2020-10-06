@@ -6,7 +6,7 @@ from util.transaction_date_util import TransactionDateUtil
 class CapitalOneAnalyzer:
 
     def __init__(self, fname, category=None, start_date=None, end_date=None):
-        self.parser = CapitalOneParser(fname, start_date, end_date)
+        self.parser = CapitalOneParser(fname, start_date=start_date, end_date=end_date)
         self.merchant_parser = MerchantParser(self.parser.get_dataframe(), category=category)
         self.categories = self.parser.get_categories()
         self.cardholders = self.parser.get_cardholders()
