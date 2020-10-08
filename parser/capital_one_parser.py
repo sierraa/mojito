@@ -59,6 +59,9 @@ class CapitalOneParser:
     def write(self, outfile):
         self.df.to_csv(outfile, index=False)
 
+    def update_categories_for_retailer(self, retailer, new_category):
+        self.df.loc[self.df["Description"] == retailer, ["Category"]] = new_category
+
     def get_unique_transactions_for_category(self, category):
         return self.df.query('Category == "{}"'.format(category))['Description'].unique()
 
