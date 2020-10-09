@@ -1,5 +1,7 @@
 import pandas as pd
 
+from parser.capital_one_parser import CapitalOneParser
+from parser.merchant_parser import MerchantParser
 from util.memo_string_cleaner import MemoStringCleaner
 
 
@@ -9,7 +11,7 @@ class TrailheadParser:
         self.df = pd.read_csv(fname)
         self.string_cleaner = MemoStringCleaner()
 
-    def standardize(self, outfile, categorize=False):
+    def standardize(self, outfile, categorize_file=None):
         # Rewrite trailhead data to a csv that is compatible with the one produced by Capital One
         # TRNTYPE,DTPOSTED,TRANAMT,FITID,NAME,MEMO
         # Transaction Date,Posted Date,Card No.,Description,Category,Debit,Credit
@@ -33,8 +35,8 @@ class TrailheadParser:
 
         self.df["Description"] = self.df["MEMO"].apply(self.string_cleaner.parse_description)
 
-        if categorize:
-            self.categorize_descriptions()
+        if categorize_file:
+            self.categorize(categorize_file)
         else:
             self.df["Category"] = pd.Series(["Other" for _ in range(self.df.shape[0])])
 
@@ -43,6 +45,8 @@ class TrailheadParser:
         self.df = self.df.reindex(columns=["Transaction Date", "Posted Date", "Card No.", "Description", "Category", "Debit", "Credit"])
         self.df.to_csv(outfile, index=False)
 
-    def categorize_descriptions(self):
-        raise NotImplementedError
+    def categorize(self, categorize_file):
+        parser = CapitalOneParser(categorize_file)
+        merchant_parser = MerchantParser(parser.df, confidence_level=.87)
+        self.df["Category"] = self.df["Description"].apply(merchant_parser.get_category_for_retailer)
 

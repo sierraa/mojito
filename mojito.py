@@ -2,6 +2,7 @@
 from cli.analyzer import Analyzer
 from cli.categorizer import Categorizer
 # from dotenv import load_dotenv
+import logging
 import click
 
 from cli.cleaner import Cleaner
@@ -9,11 +10,11 @@ from cli.standardizer import Standardizer
 from util.transaction_date_util import TransactionDateUtil
 
 # TODO: Compare year to year
-# - Allow users to change categories (review things in the "other categories")
 # - Allow users to set goals and track those goals
 # - Make predictions based on previous years
 # TODO: Add output options (even just csv for now would be nice)
 # TODO: probably makes sense to add an analyze command plus sub commands
+# https://stackoverflow.com/questions/34643620/how-can-i-split-my-click-commands-each-with-a-set-of-sub-commands-into-multipl
 
 @click.group()
 @click.argument('filename') # TODO: how to have the command appear before the file name
@@ -21,8 +22,11 @@ from util.transaction_date_util import TransactionDateUtil
 @click.option('-s', '--start', help="Start date of the format YYYY-MM-DD")
 @click.option('-f', '--finish', help="Finish date of the format YYYY-MM-DD")
 @click.option('-v', '--verbose', is_flag=True, help="Shows averages over time.")
-def cli(ctx, filename, start, finish, verbose):
+@click.option('--debug', is_flag=True)
+def cli(ctx, filename, start, finish, verbose, debug):
     ctx.ensure_object(dict)
+    if debug:
+        logging.basicConfig(level=logging.DEBUG)
     if start or finish:
         TransactionDateUtil.validate_dates(start, finish)
     ctx.obj['START'] = start
@@ -80,11 +84,11 @@ def retailers(ctx, category, number_of_retailers, order_by):
 @click.pass_context
 @click.argument('output')
 @click.option('--bank', type=click.Choice(['trailhead']), default='trailhead') # TODO: add more banks
-# @click.option('--categorize', help="Use machine learning to categorize vendors", is_flag=True, default=False)
-def standardize(ctx, output, bank):
+@click.option('--categorize_file', help="Use string matching to categorize vendors")
+def standardize(ctx, output, bank, categorize_file):
     """Standardize csv output from different banks"""
     if bank == "trailhead":
-        Standardizer.standardize_trailhead(ctx.obj['FILENAME'], output)
+        Standardizer.standardize_trailhead(ctx.obj['FILENAME'], output, categorize_file=categorize_file)
 
 
 @cli.command()

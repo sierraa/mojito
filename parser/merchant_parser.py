@@ -9,7 +9,7 @@ class MerchantParser:
 
     def __init__(self, df, confidence_level=0.70, category=None):
         self.df = df[df['Category'] == category] if category else df
-        self.matcher = MerchantDescriptionMatcher()
+        self.matcher = MerchantDescriptionMatcher(confidence_threshold=confidence_level*100)
         self.cleaner = MerchantStringCleaner()
         self.confidence_level = confidence_level
         self.category = category
@@ -21,7 +21,15 @@ class MerchantParser:
         if self.retailers:
             return self.retailers
         else:
-            return self.matcher.get_labels(self.df['Description'].unique())
+            self.retailers = self.matcher.get_labels(self.df['Description'].unique())
+            return self.retailers
+
+    def get_category_for_retailer(self, retailer):
+        try:
+            closest = self.matcher.find_closest_match(retailer, self.get_retailers())
+            return self.df.query('Description == "{}"'.format(closest)).iloc[0]["Category"]
+        except ValueError:
+            return "Other"
 
     def sum_for_retailer(self, retailer):
         if retailer in self.retailer_metrics.keys():

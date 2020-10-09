@@ -1,5 +1,6 @@
 from whaaaaat import prompt
 
+from cli.output_helper import OutputHelper
 from parser.capital_one_parser import CapitalOneParser
 
 
@@ -9,6 +10,9 @@ class Categorizer:
     def categorize(filename, start, finish, category):
         parser = CapitalOneParser(filename, start_date=start, end_date=finish)
         uncategorized = parser.get_unique_transactions_for_category(category)
+        if len(uncategorized) == 0:
+            OutputHelper.echo_no_transactions_in_category(category)
+            return
         categories = parser.get_categories()
         questions = [
             {
@@ -39,22 +43,5 @@ class Categorizer:
         ]
         new_category_answers = prompt(questions)
         parser.update_categories_for_retailer(new_category_answers['retailer'], new_category_answers['category'])
-        output_questions = [
-            {
-                'type': 'confirm',
-                'name': 'overwrite',
-                'message': "Would you like to overwrite these changes to the existing csv ({})?".format(filename),
-                'default': False
-            },
-            {
-                'type': 'input',
-                'name': 'filename',
-                'message': 'Enter the filename to write output to:',
-                'when': lambda answers: not answers['overwrite']
-            }
-        ]
-        output_answers = prompt(output_questions)
-        if output_answers['overwrite']:
-            parser.write(filename)
-        else:
-            parser.write(output_answers['filename'])
+        write_file = OutputHelper.confirm_overwrite(filename)
+        parser.write(write_file)

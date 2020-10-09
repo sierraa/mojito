@@ -1,4 +1,5 @@
 import click
+from whaaaaat import prompt
 
 
 class OutputHelper:
@@ -37,6 +38,31 @@ class OutputHelper:
     @staticmethod
     def echo_please_hold():
         click.secho("Please hold, this could take a few minutes...", fg="white", bg="black")
+
+    @staticmethod
+    def echo_no_transactions_in_category(category):
+        click.secho("No transactions in category: {}".format(category), fg="white", bg="black")
+
+    @staticmethod
+    def confirm_overwrite(filename):
+        overwrite_questions = [
+            {
+                'type': 'confirm',
+                'name': 'overwrite',
+                'message': "Would you like to overwrite these changes to the existing csv ({})?".format(filename),
+                'default': False
+            },
+            {
+                'type': 'input',
+                'name': 'filename',
+                'message': 'Enter the filename to write output to:',
+                'when': lambda answers: not answers['overwrite']
+            }
+        ]
+        overwrite_answers = prompt(overwrite_questions)
+        if overwrite_answers["overwrite"]:
+            return filename
+        return overwrite_answers["filename"]
 
     def echo_spending_with_percent(self, amount, category, raw_percentage, name="You"):
         click.secho(self.format_spending_with_percent(amount, category, raw_percentage, name=name))

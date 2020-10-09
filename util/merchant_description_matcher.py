@@ -1,11 +1,13 @@
 from difflib import SequenceMatcher
 from fuzzywuzzy import process
 from util.merchant_string_cleaner import MerchantStringCleaner
+import logging
+
 
 # TODO: consider semantic clustering
 class MerchantDescriptionMatcher:
 
-    def __init__(self, confidence_threshold=.70):
+    def __init__(self, confidence_threshold=70):
         self.string_cleaner = MerchantStringCleaner()
         self.confidence_threshold = confidence_threshold
 
@@ -22,8 +24,8 @@ class MerchantDescriptionMatcher:
     def find_closest_match(self, word, lst):
         match, confidence = process.extractOne(word, lst)
         if confidence < self.confidence_threshold:
-            # TODO: replace this with a debug log
-            raise ValueError("No matches found for word {}".format(word))
+            logging.debug(f"No matches found for word {word}")
+            raise ValueError(f"No matches found for word {word}")
         return match
 
     def __cluster_labels(self, series):
