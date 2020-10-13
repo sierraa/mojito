@@ -1,3 +1,5 @@
+import logging
+
 from parser.merchant_parser import MerchantParser
 from parser.capital_one_parser import CapitalOneParser
 from util.transaction_date_util import TransactionDateUtil
@@ -7,6 +9,8 @@ class CapitalOneAnalyzer:
 
     def __init__(self, fname, category=None, start_date=None, end_date=None):
         self.parser = CapitalOneParser(fname, start_date=start_date, end_date=end_date)
+        self.total_payment = abs(self.parser.sum_total_category("Payment/Credit"))
+        self.total_income = abs(self.parser.sum_total_category("Income"))
         self.merchant_parser = MerchantParser(self.parser.get_dataframe(), category=category)
         self.categories = self.parser.get_categories()
         self.cardholders = self.parser.get_cardholders()
@@ -44,7 +48,9 @@ class CapitalOneAnalyzer:
 
     def get_total_spending(self):
         if not self.total_spent:
+            logging.debug(f"Calculating total spent with income {self.total_income} and {self.total_payment}")
             self.total_spent = self.parser.sum_total_spending()
+            logging.debug(f"Raw total spent {self.total_spent}")
         return self.total_spent
 
     def get_total_spending_per_cardholder(self):
@@ -125,6 +131,7 @@ class CapitalOneAnalyzer:
         return self.get_spending_per_category_per_cardholder()[cardholder][category] / self.num_days
 
     def __analyze_per_category(self):
+        # TODO treat income and Payment/Credit differently
         # Return a dictionary of spending per category
         spending_per_category = dict()
         for category in self.categories:
@@ -133,6 +140,7 @@ class CapitalOneAnalyzer:
         return spending_per_category
 
     def __analyze_per_cardholder(self):
+        # TODO treat income and Payment/Credit differently
         spending_per_cardholder = dict()
         for cardholder in self.cardholders:
             spending_per_cardholder[cardholder] = dict()

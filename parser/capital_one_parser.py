@@ -9,21 +9,22 @@ class CapitalOneParser:
         self.transaction_date = 'Transaction Date'
         self.df[self.transaction_date] = pd.to_datetime(self.df[self.transaction_date])
         if start_date and end_date:
-            self.df = self.df[(self.df[self.transaction_date] > pd.Timestamp(start_date)) & (self.df[self.transaction_date] < pd.Timestamp(end_date))]
+            self.df = self.df[(self.df[self.transaction_date] > pd.Timestamp(start_date)) & (
+                    self.df[self.transaction_date] < pd.Timestamp(end_date))]
         elif start_date:
             self.df = self.df[(self.df[self.transaction_date] > pd.Timestamp(start_date))]
         elif end_date:
             self.df = self.df[(self.df[self.transaction_date] < pd.Timestamp(end_date))]
 
     def sum_total_spending(self):
-        return self.sum_total_spending_for_dataframe(self.df)
+        return self.sum_total_for_dataframe(self.df)
 
     def sum_total_spending_per_cardholder(self, last_four):
-        return self.sum_total_spending_for_dataframe(self.df[self.df["Card No."] == last_four])
+        return self.sum_total_for_dataframe(self.df[self.df["Card No."] == last_four])
 
     def sum_total_spending_for_dates(self, start_date, end_date):
         date_range = self.df.loc[start_date:end_date]
-        return self.sum_total_spending_for_dataframe(date_range)
+        return self.sum_total_for_dataframe(date_range)
 
     def sum_total_category(self, category):
         return self.sum_total_category_for_dataframe(category, self.df)
@@ -54,7 +55,7 @@ class CapitalOneParser:
         return self.df[self.transaction_date].max()
 
     def add_data(self, dataframe):
-        self.df.append(dataframe, ignore_index=True)
+        self.df = self.df.append(dataframe, ignore_index=True)
 
     def write(self, outfile):
         self.df.to_csv(outfile, index=False)
@@ -68,12 +69,14 @@ class CapitalOneParser:
     @staticmethod
     def sum_total_category_for_dataframe(category, dataframe):
         category_df = dataframe.query("Category == '{}'".format(category))
-        return CapitalOneParser.sum_total_spending_for_dataframe(category_df)
+        total = CapitalOneParser.sum_total_for_dataframe(category_df)
+        if category == "Income" or category == "Payment/Credit":
+            total = abs(total)
+        return total
 
     @staticmethod
-    def sum_total_spending_for_dataframe(dataframe):
+    def sum_total_for_dataframe(dataframe):
         remove_nans = lambda x: 0 if math.isnan(x) else x
         total_debits = dataframe["Debit"].apply(remove_nans).sum()
-        # TODO: adding in credits is buggy with payment categories
         total_credits = 0 # dataframe["Credit"].apply(remove_nans).sum()
         return total_debits - total_credits

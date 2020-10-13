@@ -10,6 +10,8 @@ class Categorizer:
     def categorize(filename, start, finish, category):
         parser = CapitalOneParser(filename, start_date=start, end_date=finish)
         uncategorized = parser.get_unique_transactions_for_category(category)
+        # TODO: add q to quit
+        # Add a while loop
         if len(uncategorized) == 0:
             OutputHelper.echo_no_transactions_in_category(category)
             return

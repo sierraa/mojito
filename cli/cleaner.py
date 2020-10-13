@@ -1,5 +1,6 @@
 from main.capital_one_cleaner import CapitalOneCleaner
 from parser.capital_one_parser import CapitalOneParser
+import logging
 
 
 class Cleaner:
@@ -11,6 +12,7 @@ class Cleaner:
         initial_data = CapitalOneParser(initial_fname)
         for fname in csvs:
             new_data = CapitalOneParser(fname)
+            logging.debug(f"Merging data from {fname} into {initial_fname}")
             initial_data.add_data(new_data.get_dataframe())
         initial_data.write(output)
 

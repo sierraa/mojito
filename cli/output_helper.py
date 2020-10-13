@@ -14,12 +14,18 @@ class OutputHelper:
             "Gas/Automotive": "⛽",
             "Phone/Cable": "☎️",
             "Health Care": "💊",
-            "Entertainment": "🎤"
+            "Entertainment": "🎤",
+            "Payment/Credit": "💰",
+            "ATM": "🤑"
         }
 
     @staticmethod
     def echo_total(total):
         click.secho("💸 You spent ${:.2f} total 💸".format(total), bold=True, fg="green")
+
+    @staticmethod
+    def echo_payment(payment_amount):
+        click.secho("💰 You made ${:.2f} in payments.".format(payment_amount), bold=True, fg="green")
 
     @staticmethod
     def echo_time_averages(monthly, weekly, daily):
