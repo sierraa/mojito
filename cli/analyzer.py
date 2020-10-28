@@ -13,6 +13,10 @@ class Analyzer:
         percentage_per_category = self.bank.get_percentage_per_category()
         total_spending = self.bank.get_total_spending()
         self.output_helper.echo_total(total_spending)
+        income = self.bank.get_total_income()
+        self.output_helper.echo_income(income)
+        payments = self.bank.get_total_payment_credit()
+        self.output_helper.echo_payment(payments)
         if verbose:
             self.output_helper.echo_time_averages(self.bank.get_average_monthly_spending(),
                                                   self.bank.get_average_weekly_spending(),
@@ -72,3 +76,12 @@ class Analyzer:
                 self.output_helper.echo_time_averages(self.bank.get_average_monthly_spending_for_retailer(retailer),
                                                       self.bank.get_average_weekly_spending_for_retailer(retailer),
                                                       self.bank.get_average_daily_spending_for_retailer(retailer))
+
+    def analyze_income(self, verbose):
+        total_income = self.bank.get_total_income()
+        self.output_helper.echo_income(total_income)
+        income_per_source = self.bank.get_total_income_per_source()
+        for source in income_per_source.keys():
+            total_for_source = income_per_source[source]
+            percent = total_for_source / total_income
+            self.output_helper.echo_income_with_percent(total_for_source, source, percent)

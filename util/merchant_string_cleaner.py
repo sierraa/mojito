@@ -26,7 +26,7 @@ class MerchantStringCleaner:
     def remove_merchant_junk(s):
         # Don't care if square was used, pollutes our description
         square_regex = r"((SQUARE)|(SQU)|(SQ))\s*\*{1}(SQ)?\s*\*?\s*"
-        junk_strings = ["TST*", ".COM"]
+        junk_strings = ["TST*", ".COM", "qps"]
         s = re.sub(square_regex, '', s)
         for junk in junk_strings:
             if junk in s:

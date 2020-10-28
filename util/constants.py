@@ -1,0 +1,8 @@
+INCOME = "Income"
+PAYMENT_CREDIT = "Payment/Credit"
+TRANSACTION_DATE = "Transaction Date"
+CATEGORY = "Category"
+DESCRIPTION = "Description"
+CARD_NO = "Card No."
+DEBIT = "Debit"
+CREDIT = "Credit"

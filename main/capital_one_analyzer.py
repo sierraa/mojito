@@ -9,8 +9,6 @@ class CapitalOneAnalyzer:
 
     def __init__(self, fname, category=None, start_date=None, end_date=None):
         self.parser = CapitalOneParser(fname, start_date=start_date, end_date=end_date)
-        self.total_payment = abs(self.parser.sum_total_category("Payment/Credit"))
-        self.total_income = abs(self.parser.sum_total_category("Income"))
         self.merchant_parser = MerchantParser(self.parser.get_dataframe(), category=category)
         self.categories = self.parser.get_categories()
         self.cardholders = self.parser.get_cardholders()
@@ -46,9 +44,21 @@ class CapitalOneAnalyzer:
             self.percent_per_category_per_cardholder = self.__analyze_percent_per_category_per_cardholder()
         return self.percent_per_category_per_cardholder
 
+    def get_total_income(self):
+        return self.parser.sum_total_income()
+
+    def get_total_income_per_source(self):
+        incomes = dict()
+        sources = self.parser.get_income_sources()
+        for source in sources:
+            incomes[source] = abs(self.parser.sum_total_income_for_source(source))
+        return incomes
+
+    def get_total_payment_credit(self):
+        return self.parser.sum_total_payment_credit()
+
     def get_total_spending(self):
         if not self.total_spent:
-            logging.debug(f"Calculating total spent with income {self.total_income} and {self.total_payment}")
             self.total_spent = self.parser.sum_total_spending()
             logging.debug(f"Raw total spent {self.total_spent}")
         return self.total_spent
@@ -140,7 +150,6 @@ class CapitalOneAnalyzer:
         return spending_per_category
 
     def __analyze_per_cardholder(self):
-        # TODO treat income and Payment/Credit differently
         spending_per_cardholder = dict()
         for cardholder in self.cardholders:
             spending_per_cardholder[cardholder] = dict()

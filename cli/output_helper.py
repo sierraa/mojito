@@ -15,13 +15,16 @@ class OutputHelper:
             "Phone/Cable": "☎️",
             "Health Care": "💊",
             "Entertainment": "🎤",
-            "Payment/Credit": "💰",
             "ATM": "🤑"
         }
 
     @staticmethod
     def echo_total(total):
         click.secho("💸 You spent ${:.2f} total 💸".format(total), bold=True, fg="green")
+
+    @staticmethod
+    def echo_income(income):
+        click.secho("💰 You brought in ${:.2f}".format(income), bold=True, fg="green")
 
     @staticmethod
     def echo_payment(payment_amount):
@@ -70,11 +73,14 @@ class OutputHelper:
             return filename
         return overwrite_answers["filename"]
 
+    def echo_income_with_percent(self, amount, source, raw_percentage, name="You"):
+        click.secho(self.format_spending_with_percent(amount, source, raw_percentage, name=name, action="made"))
+
     def echo_spending_with_percent(self, amount, category, raw_percentage, name="You"):
         click.secho(self.format_spending_with_percent(amount, category, raw_percentage, name=name))
 
-    def format_spending_with_percent(self, amount, category, raw_percentage, name="You"):
+    def format_spending_with_percent(self, amount, category, raw_percentage, name="You", action="spent"):
         percent = raw_percentage * 100
         category_with_emoji = category + " " + self.category_to_emoji.get(category, "")
-        return "{} spent ${:.2f} in {} ({:.2f}% of total)".format(name, amount, category_with_emoji, percent)
+        return f"{name} {action} ${amount:.2f} in {category_with_emoji} ({percent:.2f}% of total)"
 

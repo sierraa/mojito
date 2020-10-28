@@ -53,3 +53,5 @@ After all your transaction data is in a buttoned-up format, you are now ready to
 ```bash
 python3 mojito.py 92020.csv overview
 ```
+
+You can then further inspect your spending for the month by using the *retailers* command. 

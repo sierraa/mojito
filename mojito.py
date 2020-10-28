@@ -5,6 +5,9 @@ from cli.categorizer import Categorizer
 import logging
 import click
 
+# One option is to treat income/payment data as their own internal dfs,
+# gets rid of the problem of treating all tranasctions equally
+
 from cli.cleaner import Cleaner
 from cli.standardizer import Standardizer
 from util.transaction_date_util import TransactionDateUtil
@@ -79,6 +82,12 @@ def retailers(ctx, category, number_of_retailers, order_by):
     analyzer = Analyzer(ctx.obj['FILENAME'], start_date=ctx.obj['START'], end_date=ctx.obj['FINISH'])
     analyzer.analyze_per_retailer(ctx.obj['VERBOSE'], number_of_retailers, order_by, category=None)
 
+@cli.command()
+@click.pass_context
+def income(ctx):
+    """Show income sources"""
+    analyzer = Analyzer(ctx.obj['FILENAME'], start_date=ctx.obj['START'], end_date=ctx.obj['FINISH'])
+    analyzer.analyze_income(ctx.obj['VERBOSE'])
 
 @cli.command()
 @click.pass_context

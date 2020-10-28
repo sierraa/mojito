@@ -15,7 +15,7 @@ class Categorizer:
         if len(uncategorized) == 0:
             OutputHelper.echo_no_transactions_in_category(category)
             return
-        categories = parser.get_categories()
+        categories = parser.get_all_categories()
         questions = [
             {
                 'type': 'list',
