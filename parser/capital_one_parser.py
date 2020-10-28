@@ -60,7 +60,7 @@ class CapitalOneParser:
         return np.concatenate((spending_categories, income_categories), axis=None)
 
     def get_cardholders(self):
-        return self.df[CARD_NO].unique()
+        return list(filter(lambda x: not math.isnan(x), self.df[CARD_NO].unique()))
 
     def get_merchants(self):
         return self.df[DESCRIPTION].unique()
