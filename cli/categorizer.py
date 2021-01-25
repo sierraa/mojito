@@ -49,7 +49,6 @@ class Categorizer:
                     'default': False
                 }
             ]
-            # Maybe don't write on every loop
             new_category_answers = prompt(questions)
             parser.update_categories_for_retailer(new_category_answers['retailer'], new_category_answers['category'])
             uncategorized = parser.get_unique_transactions_for_category(category)

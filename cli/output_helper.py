@@ -49,6 +49,10 @@ class OutputHelper:
         click.secho("Please hold, this could take a few minutes...", fg="white", bg="black")
 
     @staticmethod
+    def echo_no_matches_found(word):
+        click.secho(f"No matches for '{word}'", fg="white", bg="black")
+
+    @staticmethod
     def echo_no_transactions_in_category(category):
         click.secho("No transactions in category: {}".format(category), fg="white", bg="black")
 

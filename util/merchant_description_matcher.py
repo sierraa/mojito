@@ -28,6 +28,10 @@ class MerchantDescriptionMatcher:
             raise ValueError(f"No matches found for word {word}")
         return match
 
+    def find_matches(self, word, lst):
+        generator = process.extractWithoutOrder(word, lst, score_cutoff=self.confidence_threshold)
+        return [item[0] for item in generator]
+
     def __cluster_labels(self, series):
         # Go through series
         result_set = set()

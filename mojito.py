@@ -9,6 +9,7 @@ import click
 # gets rid of the problem of treating all tranasctions equally
 
 from cli.cleaner import Cleaner
+from cli.renamer import Renamer
 from cli.standardizer import Standardizer
 from util.transaction_date_util import TransactionDateUtil
 
@@ -116,6 +117,14 @@ def categorize(ctx, category):
     """Categorize entries in an existing category.
     For best results use on data that has already been cleaned using the clean command."""
     Categorizer.categorize(ctx.obj['FILENAME'], ctx.obj['START'], ctx.obj['FINISH'], category)
+
+
+@cli.command()
+@click.pass_context
+@click.argument('term')
+def rename(ctx, term):
+    """Find retailers with a similar name (and then rename them)"""
+    Renamer.rename(ctx.obj['FILENAME'], ctx.obj['START'], ctx.obj['FINISH'], term)
 
 
 if __name__ == "__main__":

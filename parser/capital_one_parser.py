@@ -88,6 +88,9 @@ class CapitalOneParser:
     def update_categories_for_retailer(self, retailer, new_category):
         self.df.loc[self.df[DESCRIPTION] == retailer, [CATEGORY]] = new_category
 
+    def update_description_for_retailer(self, retailer, new_description):
+        self.df.loc[self.df[DESCRIPTION] == retailer, [DESCRIPTION]] = new_description
+
     def get_unique_transactions_for_category(self, category):
         if category == INCOME or category == PAYMENT_CREDIT:
             return self.incomes_and_payments_df.query('Category == @category')[DESCRIPTION].unique()

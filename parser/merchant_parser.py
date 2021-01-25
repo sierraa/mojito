@@ -1,5 +1,7 @@
 from collections import namedtuple
 import math
+
+from util.constants import DESCRIPTION
 from util.merchant_description_matcher import MerchantDescriptionMatcher
 from util.merchant_string_cleaner import MerchantStringCleaner
 
@@ -21,8 +23,11 @@ class MerchantParser:
         if self.retailers:
             return self.retailers
         else:
-            self.retailers = self.matcher.get_labels(self.df['Description'].unique())
+            self.retailers = self.matcher.get_labels(self.df[DESCRIPTION].unique())
             return self.retailers
+
+    def get_similar_retailers(self, word):
+        return self.matcher.find_matches(word, self.get_retailers())
 
     def get_category_for_retailer(self, retailer):
         try:
