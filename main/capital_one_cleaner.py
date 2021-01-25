@@ -1,5 +1,6 @@
 from parser.capital_one_parser import CapitalOneParser
 from parser.merchant_parser import MerchantParser
+from util.constants import DESCRIPTION
 from util.merchant_description_matcher import MerchantDescriptionMatcher
 from util.merchant_string_cleaner import MerchantStringCleaner
 
@@ -16,9 +17,7 @@ class CapitalOneCleaner:
 
     def clean(self, outfile):
         retailers = self.merchant_parser.get_retailers()
-        # TODO garbage anti pattern FIX ME
-        for i, row in self.df.iterrows():
-            desc = self.merchant_cleaner.clean_merchant(row['Description'])
-            updated_desc = self.merchant_matcher.find_closest_match(desc, retailers)
-            self.df.iat[i, self.description_column_index] = updated_desc
+        cleaned_merchants = self.df[DESCRIPTION].apply(self.merchant_cleaner.clean_merchant)
+        closest_match = lambda description: self.merchant_matcher.find_closest_match(description, retailers)
+        self.df[DESCRIPTION] = cleaned_merchants.apply(closest_match)
         self.df.to_csv(outfile, index=False)
