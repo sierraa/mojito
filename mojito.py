@@ -116,7 +116,17 @@ def merge(ctx, csv, output):
 def categorize(ctx, category):
     """Categorize entries in an existing category.
     For best results use on data that has already been cleaned using the clean command."""
-    Categorizer.categorize(ctx.obj['FILENAME'], ctx.obj['START'], ctx.obj['FINISH'], category)
+    categorizer = Categorizer(ctx.obj['FILENAME'], ctx.obj['START'], ctx.obj['FINISH'])
+    categorizer.categorize(category)
+
+
+@cli.command()
+@click.pass_context
+@click.argument('retailer')
+def categorize_retailer(ctx, retailer):
+    """Categorize a retailer to a new or existing category."""
+    categorizer = Categorizer(ctx.obj['FILENAME'], ctx.obj['START'], ctx.obj['FINISH'])
+    categorizer.categorize_retailer(retailer, write=True)
 
 
 @cli.command()
