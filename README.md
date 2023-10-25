@@ -1,4 +1,4 @@
-## Mojito
+# Mojito
 
 Mojito aspires to be a mint-like budgeting tool minus Intuit. Currently it is an unmaintained CLI tool I built to help with budgeting. 
 
