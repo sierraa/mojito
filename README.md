@@ -1,6 +1,6 @@
 ## Mojito
 
-Mojito aspires to be a mint-like budgeting tool minus Intuit. Currently it is a CLI tool I built to help with budgeting. 
+Mojito aspires to be a mint-like budgeting tool minus Intuit. Currently it is an unmaintained CLI tool I built to help with budgeting. 
 
 ```bash
 % python3 mojito.py                                     
